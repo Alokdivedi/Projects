@@ -1,46 +1,64 @@
-module tb;
-  parameter ADD_WIDTH = 4 ;
-  parameter DATA_WIDTH = 8;
-  
-  reg clk;
-  reg en;
-  reg [ADD_WIDTH-1:0]addr;
-  reg [DATA_WIDTH-1:0]d_in;
-  wire [DATA_WIDTH-1:0]d_out;
-  
-  RAM #(.ADD_WIDTH(ADD_WIDTH),
-        .DATA_WIDTH(DATA_WIDTH)) uut(.clk(clk), 
-                                     .en(en) ,
-                                     .addr(addr),
-                                     .d_in(d_in),
-                                     .d_out(d_out));
-  
-  
-  initial begin
-    clk = 0;
-    forever #5 clk = ~clk;
-  end
-  
-  initial begin
-    en = 0 ;
-    d_in = 0;
-    addr = 0;
-    
-    #10 en = 1;
-    addr = 4'b0000;  d_in = 8'h3A ; #10 ;
-     addr = 4'b0001;  d_in = 8'h5A ; #10 ;
-     addr = 4'b0010;  d_in = 8'h7A ; #10 ;
-    
+
+module tb_vending_machine;
+
+   
+    reg clk;
+    reg reset;
+    reg nickel_in;
+    reg dime_in;
+    reg quarter_in;
+
+   
+    wire soda_out;
+    wire [3:0] change_out;
+
+  vending_machine uut (
+        .clk(clk),
+        .reset(reset),
+        .nickel_in(nickel_in),
+        .dime_in(dime_in),
+        .quarter_in(quarter_in),
+        .soda_out(soda_out),
+        .change_out(change_out)
+    );
+
+    // Clock generation
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk; // Toggle clock every 5 time units
+    end
+
+    // Test sequence
+    initial begin
+        // Initialize inputs
+        reset = 1;
+        nickel_in = 0;
+        dime_in = 0;
+        quarter_in = 0;
+        #10 reset = 0; 
+
+        dime_in = 1; #10; 
+        dime_in = 0; #10;
+        nickel_in = 1; #10; 
+        nickel_in = 0; #10;
+   
+
        
-    en = 0; #10;
-    addr = 4'b0000;#10;
-    addr = 4'b0001;#10;
-    addr = 4'b0010;#10;
-    
-      
-    $stop;
-    
-  end
-                                     
+        quarter_in = 1; #10; 
+        quarter_in = 0; #10;
+       
+
+        dime_in = 1; #10; 
+        dime_in = 0; #10;
+        dime_in = 1; #10; 
+        dime_in = 0; #10;
+   
+
+        $stop;
+    end
+initial begin
+  $dumpfile("dump.vcd");
+  $dumpvars;
+end
   
 endmodule
